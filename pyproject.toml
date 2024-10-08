@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "legallint"
+version = "0.1.0"
+description = "LegalLint: A Multi-Language License Compliance Linter"
+authors = ["Kiran Kumar Kotari <kirankotari@live.com>"]
+readme = "README.md"
+license = "Apache-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.32.3"
+
+[tool.poetry.scripts]
+legallint = 'legallint.scripts.legallint_tool:main'
+
+[build-system]
+requires = ["poetry_core>=1.0"]
+build-backend = "poetry.core.masonry.api"

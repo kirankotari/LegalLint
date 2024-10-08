@@ -1,0 +1,82 @@
+import os
+import abc
+import sys
+import importlib
+
+from collections import defaultdict
+from legallint.utils import get_basedir, check_subclass
+
+class Plugin(abc.ABC):
+    @abc.abstractmethod
+    def get_name(self):
+        """Returns the name of the plugin."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def run(self, data):
+        """Processes the input data."""
+        raise NotImplementedError
+
+class PluginManager:
+    # TODO: need to add more plugins
+    def __init__(self, plugindirs=None):
+        self.plugindirs = plugindirs if plugindirs is not None else []
+        self.plugins = defaultdict(list)
+        self.basedir = get_basedir()
+
+    def load_plugins(self, plugin=None):
+        """Loads all plugins from the plugin directory."""
+        self.plugindirs.insert(0, f"{self.basedir}/plugins")
+
+        # TODO: importing path is static, need to update later
+        # pth = os.getenv('LEGALLINT_PLUGINPATH')
+        # if pth is not None:
+        #     self.plugindirs.extend(pth.split(os.pathsep))
+
+        syspath = sys.path
+        for eplugin in self.plugindirs:
+            for lang in os.listdir(eplugin):
+                if not os.path.isdir(f"{eplugin}/{lang}") or (plugin and plugin != lang):
+                    continue
+
+                sys.path = [f"{eplugin}", f"{eplugin}/{lang}"] + syspath
+                fnames = os.listdir(f"{eplugin}/{lang}")
+
+                for fname in fnames:
+                    if (fname.startswith(".#") or fname.startswith("__")):
+                        continue
+                    elif fname.endswith(".py"):
+                        modname = fname[:-3]
+                        self._load_plugin(lang, modname)
+                    elif fname.endswith(".pyc"):
+                        modname = fname[:-4]
+                        self._load_plugin(lang, modname)
+        sys.path = syspath
+        return self.plugins
+
+
+    def _load_plugin(self, lang, module):
+        """Dynamically loads a plugin modules"""
+        plugin = 'legallint.plugins'
+        module = importlib.import_module(f"{plugin}.{lang}.{module}")
+        for attr in dir(module):
+            plugin_class = getattr(module, attr)
+            if isinstance(plugin_class, type) and check_subclass(plugin_class, Plugin):
+                self.plugins[lang] = plugin_class()
+
+    def get_plugins_by_language(self, lang):
+        """Returns plugins that support a specific language."""
+        for plugin in self.plugins.keys():
+            if lang == plugin:
+                return self.plugins[lang]
+        print(f"plugin for given {lang} is not loaded")
+    
+    def get_supported_languages(self):
+        return list(self.plugins.keys())
+
+    def run_plugin(self, plugin_name, data):
+        """Runs a specific plugin by name."""
+        if plugin_name in self.plugins:
+            return self.plugins[plugin_name].run(data)
+        else:
+            raise ValueError(f"Plugin '{plugin_name}' not found.")
