@@ -88,6 +88,7 @@ class License:
     basedir = get_basedir()
     resources = f"{basedir}/license/resources.txt"
     license_file = f"{basedir}/license/{JSON.fname}"
+    licenses = {}
 
     @classmethod
     def fetch(cls, resources=None):
@@ -131,14 +132,17 @@ class License:
         return None
 
     @classmethod
-    def get(cls, license_file=None):
+    def get(cls, license_file=None, is_print=True): 
+        # TODO: need to add filter to print matching, similar keys only
         if not license_file:
             license_file = cls.license_file
 
         if not os.path.isfile(license_file):
             main()
 
-        data = read_json(license_file)
+        cls.licenses = read_json(license_file)
+        if not is_print:
+            return cls.licenses
 
         # ANSI escape codes for colors
         COLORS = [
@@ -158,7 +162,7 @@ class License:
         print(f"\033[34m{'SPDX Code':<35} Full Name{RESET}")
         print("-" * 70)
         color_index = 0
-        for k, v in data.items():
+        for k, v in cls.licenses.items():
             print(pretty(k, v, COLORS[color_index]))
             color_index = (color_index + 1) % len(COLORS)
 
