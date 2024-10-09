@@ -27,30 +27,21 @@ class PythonPlugin(Plugin):
         print(f"python deps expanded {deps}")
         pylic = PythonLicense()
         for dep in deps:
-            if dep not in {'idna', 'requests', 'packaging', 'iniconfig', 'certifi'}:
-                continue
             lic = pylic.get_package_license(dep)
-            print(f"{dep}: {lic}")
+            print(f"{dep}: {pylic.set_to_string(lic)}")
             # break
         return
-"""
-In [19]: for d in distributions():
-    ...:     if d.metadata.get("Name") == 'urllib3':
-    ...:         dist = d
 
-In [36]: dist.locate_file('urllib3-1.26.13.dist-info/LICENSE.txt')
-Out[36]: PosixPath('/Users/kkotari/.pyenv/versions/3.9.15/lib/python3.9/site-packages/urllib3-1.26.13.dist-info/LICENSE.txt')
 
-In [37]: dist.read_text('/Users/kkotari/.pyenv/versions/3.9.15/lib/python3.9/site-packages/urllib3-1.26.13.dist-info/LICENSE.txt')
-Out[37]: 'MIT License\n\nCopyright (c) 2008-2020 Andrey Petrov and contributors (see CONTRIBUTORS.txt)\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n'
-
-"""
 class PythonLicense(License):
     def __init__(self):
         super().__init__()
         self.licenses = super().get(is_print=False)
         self.license_set = {key.split('-')[0] for key in self.licenses if len(key.split('-')[0]) > 2}
         # print(self.license_set)
+
+    def set_to_string(self, value_set):
+        return next(iter(value_set)) if len(value_set) == 1 else value_set
 
     def get_package_license(self, pkg_name):
         try:
@@ -104,85 +95,7 @@ class PythonLicense(License):
                     lic for lic in self.license_set if lic in license_content}:
                     pkg_licenses |= license
         return pkg_licenses or None
-    # def get_package_license(self, pkg_name):
-    #     try:
-    #         dist = next(d for d in distributions() if d.metadata['Name'].lower() == pkg_name.lower())
-    #         # Check the License field first
-    #         license = dist.metadata.get('License', '').strip()
-    #         if license.lower() in self.license_set:
-    #             return self.license_set[license.lower()]
 
-    #         license = dist.metadata.get('License-Expression', '').strip()
-    #         if license.lower() in self.license_set:
-    #             return self.license_set[license.lower()]
-
-    #         classifers = dist.metadata.get_all('Classifier', [])
-    #         for line in classifers:
-    #             if 'license' not in line.lower():
-    #                 continue
-    #             license = {lic.lower() for lic in self.license_set.keys() if f"{lic} " in line.lower()}
-    #             license = {self.license_set[each] for each in license}
-    #             if not len(license):
-    #                 break
-    #             return license
-
-    #         for each in dist.files:
-    #             if 'LICENSE' in each.name:
-    #                 path = each.locate()
-    #                 print(path)
-    #                 line = dist.read_text(each.locate().as_posix())
-    #                 license = {lic for lic in self.licenses.keys() if f"{lic} " in line}
-    #                 # license = {self.license_set[each] for each in license}
-    #                 if len(license):
-    #                     return license
-
-
-
-
-    #         print(f"{pkg_name} license: {license}")
-    #         # for k, v in dist.metadata.items():
-    #         #     if str(k) == 'Description':
-    #         #         continue
-    #         #     print(f"{k}: {v}")
-
-    #         # license = dist.metadata.get('License', '').strip()
-    #         # print(f"from License: {license}")
-    #         # if not license:
-    #         #     # If no License field, check Classifications field (if available)
-    #         #     license = next((item for item in dist.metadata.get('Classifications', []) if 'License' in item), '').strip()
-    #         #     print(f"from Classification: {license}")
-    #         #     if not license:
-    #         #         # If no License and no Classifications, check README (if available)
-    #         #         license = dist.metadata.get('Description', '').strip()  # Fall back to the 'Description' or README
-    #         #         # print(f"from Description: {license}")
-    #         return license
-    #     except StopIteration:
-    #         return None
-        
-    def check_license_keywords(self, pkg_name):
-        """
-        Checks if any of the license keywords match the package's license
-        and returns all matching keywords.
-        """
-        license = self.get_package_license(pkg_name)
-        if type(license) is str:
-            return license
-        
-        if type(license) is set:
-            def set_to_string(s):
-                if len(s) == 1:
-                    return next(iter(s))  # Get the single element in the set
-                return s
-            return set_to_string(license)
-        matched_keywords = []
-
-        # if license:
-        #     matched_keywords.extend(
-        #         keyword
-        #         for keyword in self.licenses
-        #         if keyword.lower() in license.lower()
-        #     )
-        return matched_keywords 
 
 class Expand:
     dep_map = {}
