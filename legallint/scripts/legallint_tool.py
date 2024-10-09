@@ -37,7 +37,7 @@ def main():
 
     if plugins:
         for lang in plugins:
-            result = manager.run_plugin(lang, "sample-data")
+            result = manager.run_plugin(lang)
             print(f"result from {plugins[lang].get_name()}: {result}")
     else:
         print("No plugins found.")

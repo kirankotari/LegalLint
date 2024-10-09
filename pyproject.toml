@@ -6,35 +6,18 @@ authors = ["Kiran Kumar Kotari <kirankotari@live.com>"]
 readme = "README.md"
 license = "Apache-2.0"
 
-# [tool.poetry.dependencies]
-# python = "^3.9"
-# requests = "^2.32.3"
-# toml = "^0.10.2"
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.32.3"
+toml = "^0.10.2"
 
 [tool.poetry.scripts]
 legallint = 'legallint.scripts.legallint_tool:main'
 
-# [tool.poetry.group.dev.dependencies]
-# pytest = "^8.3.3"
+[tool.poetry.group.dev.dependencies]
+pytest = {extras = ["mock"], version = "^8.3.3"}
 
 [build-system]
 requires = ["poetry_core>=1.0"]
 build-backend = "poetry.core.masonry.api"
-
-# Poetry dependencies
-[tool.poetry.dependencies]
-python = "^3.8"
-requests = "^2.25.1"
-
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.4"
-black = "^21.5b0"
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.4.2"
-mkdocs-material = "^9.1.5"
-
-
-[project]
-dependencies = ["requests>=2.25", "flask>=1.1"]
 

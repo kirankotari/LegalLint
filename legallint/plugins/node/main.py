@@ -4,5 +4,7 @@ class NodePlugin(Plugin):
     def get_name(self):
         return "node"
 
-    def run(self, data):
-        return f"Processed Node data: {data}"
+    def run(self):
+        deps = None
+        print(f"node deps found {deps}")
+        return

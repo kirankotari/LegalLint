@@ -1,9 +1,9 @@
 import os
 import re
 import sys
-
 import json
 import toml
+import itertools
 
 
 def get_lines(fpath):
@@ -26,10 +26,15 @@ def check_subclass(subclass, cls):
 def get_pwd():
     return os.getcwd()
 
+def flatten_set(data): # dict<key:list-of-values>
+    return set(itertools.chain(*data.values()))
+
 def get_matching_keys(substring, keys):
     return [key for key in keys if re.search(substring, key)]
 
 def read_json(fpath):
+    if not os.path.isfile(fpath):
+        return {}
     with open(fpath, 'r') as f:
         return json.load(f)
 
@@ -38,5 +43,7 @@ def write_json(fpath, data):
         json.dump(data, f, indent=2, sort_keys=True)
 
 def read_toml(fpath):
+    if not os.path.isfile(fpath):
+        return {}
     with open(fpath, 'r') as f:
         return toml.load(f)
