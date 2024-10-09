@@ -74,9 +74,9 @@ class PluginManager:
     def get_supported_languages(self):
         return list(self.plugins.keys())
 
-    def run_plugin(self, plugin_name, data):
+    def run_plugin(self, plugin_name):
         """Runs a specific plugin by name."""
         if plugin_name in self.plugins:
-            return self.plugins[plugin_name].run(data)
+            return self.plugins[plugin_name].run()
         else:
             raise ValueError(f"Plugin '{plugin_name}' not found.")

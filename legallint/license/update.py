@@ -1,12 +1,11 @@
 from __future__ import absolute_import
 
 import os
-import json
 import requests
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
-from legallint.utils import get_basedir, get_lines
+from legallint.utils import *
 
 
 class XML:
@@ -74,8 +73,7 @@ class JSON:
                 data |= license
         # Save to a file
         fpath = os.path.join(os.path.dirname(__file__), fname)
-        with open(fname, 'w') as f:
-            json.dump(data, f, indent=2, sort_keys=True)
+        write_json(fpath, data)
         print(f"file saved: {fname} under {os.path.dirname(__file__)}")
 
 
@@ -140,8 +138,7 @@ class License:
         if not os.path.isfile(license_file):
             main()
 
-        with open(license_file, 'r') as f:
-            data = json.load(f)
+        data = read_json(license_file)
 
         # ANSI escape codes for colors
         COLORS = [

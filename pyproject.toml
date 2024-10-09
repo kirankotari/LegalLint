@@ -9,10 +9,15 @@ license = "Apache-2.0"
 [tool.poetry.dependencies]
 python = "^3.9"
 requests = "^2.32.3"
+toml = "^0.10.2"
 
 [tool.poetry.scripts]
 legallint = 'legallint.scripts.legallint_tool:main'
 
+[tool.poetry.group.dev.dependencies]
+pytest = {extras = ["mock"], version = "^8.3.3"}
+
 [build-system]
 requires = ["poetry_core>=1.0"]
 build-backend = "poetry.core.masonry.api"
+
