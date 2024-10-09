@@ -19,49 +19,6 @@ class Toml:
     file = 'pyproject.toml'
 
     @classmethod
-    def parse(cls, fpath=None):
-        config = {}
-        if not fpath:
-            fpath = f"{cls.basedir}/{cls.file}"
-
-        lines = get_lines(fpath)
-        for line in lines:
-            if not line or line.startswith('#'):
-                continue
-
-            # Handle section headers (e.g. [tool.poetry])
-            if line.startswith('[') and line.endswith(']'):
-                section = line[1:-1]
-                config[section] = {}
-
-            # Handle key-value pairs (e.g. version = "1.0.0")
-            elif '=' in line:
-                key, value = line.split('=', 1)
-                key = key.strip()
-                value = value.strip().strip('"')
-                if section:
-                    config[section][key] = value
-                else:
-                    config[key] = value
-        return config
-
-    @classmethod
-    def get_req(cls, fpath=None):
-        deps = {}
-        config = cls.parse(fpath)
-        if not len(config):
-            print("no dependencies found")
-            return
-        for each in get_matching_keys('dependencies', list(config.keys())):
-            key = each.split('poetry.')[-1]
-            if 'group' in key:
-                key = key.split('group.')[-1]
-            if 'python' in config[each]:
-                del config[each]['python']
-            deps[key] = config[each].keys()
-        print(deps)
-
-    @classmethod
     def get_dependencies(cls, fpath=None):
         if not fpath:
             fpath = f"{cls.basedir}/{cls.file}"
