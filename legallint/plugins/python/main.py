@@ -17,18 +17,20 @@ class PythonPlugin(Plugin):
         Toml.get_dependencies()
         deps = Toml.to_set()
 
-        # if not deps:
-        #     deps = Reqs.get_dependencies()
+        if not deps:
+            Requirements.get_dependencies()
+            deps = Requirements.to_set()
 
         # print(f"python deps found {deps}")
         Expand.map_dependencies_by_package()
         deps = Expand.get_dependencies(deps)
         deps = deps - Expand.not_installed
-        print(f"python deps expanded {deps}")
+        # print(f"python deps expanded {deps}")
         pylic = PythonLicense()
         for dep in deps:
             lic = pylic.get_package_license(dep)
-            print(f"{dep}: {pylic.set_to_string(lic)}")
+            # lic = pylic.set_to_string(lic)
+            print(f"{dep}: {lic}")
             # break
         return
 
@@ -48,26 +50,39 @@ class PythonLicense(License):
             dist = next(d for d in distributions() if d.metadata['Name'].lower() == pkg_name.lower())
 
             if license := self._get_license_from_metadata(dist, 'License'):
-                return license
+                # print(f"license from meta License: {license}")
+                if len(license) < 3:
+                    return license
 
             if license := self._get_license_from_metadata(dist, 'License-Expression'):
-                return license
+                # print(f"license from meta License-Expression: {license}")
+                if len(license) < 3:
+                    return license
 
             if license := self._get_license_from_classifiers(dist):
-                return license
+                # print(f"license from meta Classifiers: {license}")
+                if len(license) < 3:
+                    return license
 
             if license := self._get_license_from_files(dist):
-                return license
+                # print(f"license from meta file: {license}")
+                if len(license) < 3:
+                    return license
+
+            # TODO: need to fetch priority licenses and return the same
 
         except StopIteration:
             print(f"Package '{pkg_name}' not found.")
-            return None
+            return 'UNKNOWN'
 
-        return None
+        return 'UNKNOWN'
 
     # Helper function to retrieve license from metadata fields
     def _get_license_from_metadata(self, dist, field_name):
-        return dist.metadata.get(field_name, '').strip()
+        pkg_licenses = set()
+        license_content = dist.metadata.get(field_name, '').strip()
+        pkg_licenses |= self._validate_license(license_content)
+        return pkg_licenses
 
     # Helper function to check classifiers for licenses
     def _get_license_from_classifiers(self, dist):
@@ -76,11 +91,8 @@ class PythonLicense(License):
         for line in classifiers:
             if 'license' not in line.lower():
                 continue
-            if license := {
-                lic for lic in self.licenses if f"{lic} " in line} or {
-                lic for lic in self.license_set if f"{lic} " in line}:
-                pkg_licenses |= license
-        return pkg_licenses or None
+            pkg_licenses |= self._validate_license(line)
+        return pkg_licenses
 
 
     # Helper function to check LICENSE files in the distribution
@@ -90,11 +102,15 @@ class PythonLicense(License):
             if 'LICENSE' in each.name.upper():
                 license_path = each.locate().as_posix()
                 license_content = dist.read_text(license_path)
-                if license := {
-                    lic for lic in self.licenses if lic in license_content} or {
-                    lic for lic in self.license_set if lic in license_content}:
-                    pkg_licenses |= license
-        return pkg_licenses or None
+                pkg_licenses |= self._validate_license(license_content)
+        return pkg_licenses
+    
+    def _validate_license(self, license_content):
+        if license := {
+            lic for lic in self.licenses if lic in license_content} or {
+            lic for lic in self.license_set if lic in license_content}:
+            return license
+        return set()
 
 
 class Expand:
@@ -178,8 +194,29 @@ class Toml:
         return cls.dependencies
     
     @classmethod
-    def to_set(cls, deps=None):
-        return flatten_set(cls.dependencies) if not deps and cls.dependencies else set()
+    def to_set(cls, deps:dict=None):
+        return flatten_set(cls.dependencies) if not deps and cls.dependencies else deps
+
+import os
+
+class Requirements:
+    basedir = get_pwd()
+    dependencies = {}
+
+    @classmethod
+    def get_dependencies(cls):
+        # requirements dependencies
+        for filename in os.listdir(cls.basedir):
+            if (('req' in filename or 'dep' in filename) and filename.endswith('.txt')):
+                filepath = f"{cls.basedir}/{filename}"
+                with open(filepath, 'r') as f:
+                    dependencies = set(f.read().splitlines())
+                    cls.dependencies[filename] = dependencies
+        return cls.dependencies
+
+    @classmethod
+    def to_set(cls, deps:dict=None):
+        return flatten_set(cls.dependencies) if not deps and cls.dependencies else deps
 
 
 if __name__ == "__main__":
