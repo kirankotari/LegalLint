@@ -21,6 +21,8 @@ def main():
     )
     parser.add_argument('-u', '--update', action='store_true', help="Enable update mode")
     parser.add_argument('--license', action='store_true', help="Enable license mode")
+    # TODO: add CICD option to raise when to fail
+    # TODO: allow flag based settings
     args = parser.parse_args()
 
     if getattr(args, 'license', False):

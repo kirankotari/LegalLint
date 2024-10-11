@@ -23,7 +23,6 @@ class Plugin(abc.ABC):
         raise NotImplementedError
 
 class PluginManager:
-    # TODO: need to add more plugins
     def __init__(self, plugindirs=None):
         self.plugindirs = plugindirs if plugindirs is not None else []
         self.plugins = defaultdict(list)
