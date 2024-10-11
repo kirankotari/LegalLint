@@ -6,6 +6,7 @@ import argparse
 import legallint
 from legallint.plugin import PluginManager
 from legallint.license.update import License
+from legallint.lint import LegalLint
 
 def main():
     parser = argparse.ArgumentParser(description=legallint.__description__)
@@ -37,8 +38,11 @@ def main():
 
     if plugins:
         for lang in plugins:
-            result = manager.run_plugin(lang)
-            print(f"result from {plugins[lang].get_name()}: {result}")
+            deps = manager.run_plugin(lang)
+            print("-" * 15)
+            print(f"   {plugins[lang].get_name().upper()}")
+            print("-" * 15)
+            LegalLint(deps)
     else:
         print("No plugins found.")
 

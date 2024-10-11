@@ -1,0 +1,12 @@
+allowed_licenses:
+  - MIT
+  - Apache-2.0
+
+trigger_error_licenses:
+  - GPL-3.0
+  - AGPL-3.0
+  - Proprietary
+  - Unknown
+  - BSD-3-Clause
+
+skip_libraries:

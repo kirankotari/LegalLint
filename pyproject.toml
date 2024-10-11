@@ -10,6 +10,7 @@ license = "Apache-2.0"
 python = "^3.10"
 requests = "^2.32.3"
 toml = "^0.10.2"
+pyyaml = "^6.0.2"
 
 [tool.poetry.scripts]
 legallint = 'legallint.scripts.legallint_tool:main'
@@ -21,3 +22,7 @@ pytest = {extras = ["mock"], version = "^8.3.3"}
 requires = ["poetry_core>=1.0"]
 build-backend = "poetry.core.masonry.api"
 
+[licenses]
+allowed = ["MIT", "Apache-2.0"]
+trigger_error = ["GPL-3.0", "AGPL-3.0", "Proprietary", "Unknown", "BSD-3-Clause"]
+skip_libraries = []

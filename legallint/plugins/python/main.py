@@ -29,7 +29,7 @@ class PythonPlugin(Plugin):
 
 
 class PythonLicense(License):
-    unknown = {'UNKNOWN'}
+    unknown = {'Unknown'}
     def __init__(self):
         super().__init__()
         self.licenses = super().get(is_print=False)
@@ -40,6 +40,7 @@ class PythonLicense(License):
         return next(iter(value_set)) if len(value_set) == 1 else value_set
 
     def get_package_license(self, pkg_name):
+        # TODO: use static data to optimize
         try:
             dist = next(d for d in distributions() if d.metadata['Name'].lower() == pkg_name.lower())
 
@@ -107,56 +108,55 @@ class PythonLicense(License):
             return license
         return set()
     
-    def _get_proprietary_license(self):
-        """
-        import re
+    # def _get_proprietary_license(self):
+    #     """
+    #     import re
 
-        class LicenseChecker:
+    #     class LicenseChecker:
             
-            # Existing method to get license from files
-            def _get_license_from_files(self, dist):
-                pkg_licenses = set()
-                for each in dist.files:
-                    if 'LICENSE' in each.name.upper():
-                        license_path = each.locate().as_posix()
-                        license_content = dist.read_text(license_path)
-                        pkg_licenses |= self._validate_license(license_content)
+    #         # Existing method to get license from files
+    #         def _get_license_from_files(self, dist):
+    #             pkg_licenses = set()
+    #             for each in dist.files:
+    #                 if 'LICENSE' in each.name.upper():
+    #                     license_path = each.locate().as_posix()
+    #                     license_content = dist.read_text(license_path)
+    #                     pkg_licenses |= self._validate_license(license_content)
                 
-                # If no licenses were found, use regex to detect proprietary license names
-                if not pkg_licenses:
-                    proprietary_license = self._find_proprietary_license(license_content)
-                    if proprietary_license:
-                        pkg_licenses.add(proprietary_license)
+    #             # If no licenses were found, use regex to detect proprietary license names
+    #             if not pkg_licenses:
+    #                 proprietary_license = self._find_proprietary_license(license_content)
+    #                 if proprietary_license:
+    #                     pkg_licenses.add(proprietary_license)
                 
-                return pkg_licenses
+    #             return pkg_licenses
 
-            # Validate license by checking known licenses and set licenses
-            def _validate_license(self, license_content):
-                if license := {
-                    lic for lic in self.licenses if lic in license_content} or {
-                    lic for lic in self.license_set if lic in license_content}:
-                    return license
-                return set()
+    #         # Validate license by checking known licenses and set licenses
+    #         def _validate_license(self, license_content):
+    #             if license := {
+    #                 lic for lic in self.licenses if lic in license_content} or {
+    #                 lic for lic in self.license_set if lic in license_content}:
+    #                 return license
+    #             return set()
             
-            # New method to find proprietary license using regex
-            def _find_proprietary_license(self, license_content):
-                # Define regex patterns for common proprietary license names
-                proprietary_patterns = [
-                    r'Proprietary\s+License',  # Example: 'Proprietary License'
-                    r'Company\s+Name\s+Proprietary\s+License',  # Customize for known companies
-                    # Add more patterns as needed
-                ]
+    #         # New method to find proprietary license using regex
+    #         def _find_proprietary_license(self, license_content):
+    #             # Define regex patterns for common proprietary license names
+    #             proprietary_patterns = [
+    #                 r'Proprietary\s+License',  # Example: 'Proprietary License'
+    #                 r'Company\s+Name\s+Proprietary\s+License',  # Customize for known companies
+    #                 # Add more patterns as needed
+    #             ]
                 
-                # Search through the content using the defined patterns
-                for pattern in proprietary_patterns:
-                    match = re.search(pattern, license_content, re.IGNORECASE)
-                    if match:
-                        return match.group(0)  # Return the first match found
+    #             # Search through the content using the defined patterns
+    #             for pattern in proprietary_patterns:
+    #                 match = re.search(pattern, license_content, re.IGNORECASE)
+    #                 if match:
+    #                     return match.group(0)  # Return the first match found
                 
-                return None
-
-        """
-        return set()
+    #             return None
+    #     """
+    #     return set()
 
 
 class Expand:

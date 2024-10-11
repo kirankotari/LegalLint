@@ -3,6 +3,7 @@ import re
 import sys
 import json
 import toml
+import yaml
 import itertools
 
 
@@ -47,3 +48,9 @@ def read_toml(fpath):
         return {}
     with open(fpath, 'r') as f:
         return toml.load(f)
+    
+def read_yaml(fpath):
+    if not os.path.isfile(fpath):
+        return {}
+    with open(fpath, 'r') as f:
+        return yaml.safe_load(f)
