@@ -22,10 +22,14 @@ class PythonPlugin(Plugin):
         # print(f"python deps found {dep}")
         Expand.map_dependencies_by_package()
         deps = Expand.get_dependencies(deps)
+        # print(deps)
+        # print(Expand.not_installed)
+        # print(Expand.dep_map)
         deps = deps - Expand.not_installed
         # print(f"python deps expanded {deps}")
         pylic = PythonLicense()
         return {dep: pylic.get_package_license(dep) for dep in deps}
+
 
     def _extracted_from(self, cls):
         cls.get_dependencies()
@@ -191,7 +195,7 @@ class Expand:
                 continue
             cls.visited.add(pkg_name)
 
-            if pkg_name not in cls.dep_map:
+            if pkg_name.lower() not in cls.dep_map:
                 cls.not_installed.add(pkg_name)
                 continue
 
@@ -212,7 +216,7 @@ class Expand:
         """
 
         for dist in distributions():
-            dist_name = dist.metadata.get('Name')
+            dist_name = dist.metadata.get('Name').lower()
             if dist.requires:
                 cls.dep_map[dist_name] = {cls.dep_pattern.match(dep).group(1) for dep in dist.requires}
             else:
