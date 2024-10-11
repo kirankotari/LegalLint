@@ -43,6 +43,7 @@ class LegalLint:
         self.validate(deps)
 
     def validate(self, deps):
+        marks = ('\u2714', '\u2716', '\u203C') # check, error, warning
         for dep, lic_set in deps.items():
             if dep in Settings.skip_libraries:
                 continue
@@ -58,10 +59,10 @@ class LegalLint:
                 self.warnings.add(dep)
         for dep, lic_set in deps.items():
             if dep in self.allowed:
-                print(f"{'\u2714':<5} {dep:<20} {'; '.join(lic_set)}")
+                print(f"{marks[0]:<5} {dep:<20} {'; '.join(lic_set)}")
             if dep in self.errors:
-                print(f"{'\u2716':<5} {dep:<20} {'; '.join(lic_set)}")
+                print(f"{marks[1]:<5} {dep:<20} {'; '.join(lic_set)}")
             if dep in self.warnings:
-                print(f"{'\u203C':<5} {dep:<20} {'; '.join(lic_set)}")
+                print(f"{marks[2]:<5} {dep:<20} {'; '.join(lic_set)}")
 
 

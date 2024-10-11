@@ -267,7 +267,7 @@ class Requirements:
             if (('req' in filename or 'dep' in filename) and filename.endswith('.txt')):
                 filepath = os.path.join(cls.basedir, filename)
                 # Read the contents of the file and store in the dictionary
-                deps = {}
+                deps = set()
                 for line in get_lines(filepath):
                     if cleaned := cls.clean_line(line):
                         deps.add(cleaned)
