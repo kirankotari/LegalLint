@@ -42,7 +42,8 @@ def main():
             print("-" * 15)
             print(f"   {plugins[lang].get_name().upper()}")
             print("-" * 15)
-            LegalLint(deps)
+            settings = plugins[lang].load_settings()
+            LegalLint(deps, settings)
     else:
         print("No plugins found.")
 

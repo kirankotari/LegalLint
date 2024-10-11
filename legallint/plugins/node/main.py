@@ -8,3 +8,6 @@ class NodePlugin(Plugin):
         deps = None
         print(f"node deps found {deps}")
         return
+
+    def load_settings(self):
+        return None

@@ -6,7 +6,7 @@ from importlib.metadata import distributions
 
 from legallint.plugin import Plugin
 from legallint.license.update import License
-from legallint.utils import get_pwd, get_lines, get_matching_keys, read_toml, flatten_set
+from legallint.utils import get_pwd, get_lines, get_matching_keys, read_toml, flatten_set, exit
 
 
 class PythonPlugin(Plugin):
@@ -15,6 +15,10 @@ class PythonPlugin(Plugin):
 
     def run(self):
         deps = self._extracted_from(Toml) or self._extracted_from(Requirements)
+        if not deps:
+            print('no dependencies found in this directory')
+            exit()
+
         # print(f"python deps found {dep}")
         Expand.map_dependencies_by_package()
         deps = Expand.get_dependencies(deps)
@@ -26,6 +30,16 @@ class PythonPlugin(Plugin):
     def _extracted_from(self, cls):
         cls.get_dependencies()
         return cls.to_set()
+
+    def load_settings(self):
+        config = Toml.read()
+        if 'licenses' not in config:
+            return None
+        config = config['licenses']
+        allowed_licenses = set(config.get('allowed') or [])
+        trigger_error_licenses = set(config.get('trigger_error') or [])
+        skip_libraries = set(config.get('skip_libraries') or [])
+        return (allowed_licenses, trigger_error_licenses, skip_libraries)
 
 
 class PythonLicense(License):
@@ -205,21 +219,27 @@ class Expand:
                 cls.dep_map[dist_name] = set()  # No dependencies
 
 
-
 class Toml:
     basedir = get_pwd()
     file = 'pyproject.toml'
+    config = None
     dependencies = {}
 
     @classmethod
-    def get_dependencies(cls, fpath=None):
+    def read(cls, fpath=None):
         if not fpath:
             fpath = f"{cls.basedir}/{cls.file}"
-        config = read_toml(fpath)
+        cls.config = read_toml(fpath)
+        return cls.config
+
+    @classmethod
+    def get_dependencies(cls, fpath=None):
+        if not cls.config:
+            cls.read(fpath)
 
         # Poetry dependencies
-        if 'tool' in config and 'poetry' in config['tool']:
-            poetry = config['tool']['poetry']
+        if 'tool' in cls.config and 'poetry' in cls.config['tool']:
+            poetry = cls.config['tool']['poetry']
             for matched_key in get_matching_keys('dependencies', list(poetry.keys())):
                 # print(poetry[matched_key])
                 if 'python' in poetry[matched_key]:
@@ -232,13 +252,13 @@ class Toml:
                         cls.dependencies[group] = list(group_deps['dependencies'].keys())
 
         # Setuptools dependencies (if present)
-        if 'project' in config and 'dependencies' in config['project']:
+        if 'project' in cls.config and 'dependencies' in cls.config['project']:
             cls.dependencies['setuptools'] = [
                 each.split('>=')[0] if '>=' in each else each.split('==')[0] if '==' in each else each
-                for each in config['project']['dependencies']
+                for each in cls.config['project']['dependencies']
             ]
         return cls.dependencies
-    
+
     @classmethod
     def to_set(cls, deps:dict=None):
         return flatten_set(cls.dependencies) if not deps and cls.dependencies else deps
@@ -265,7 +285,7 @@ class Requirements:
         for filename in os.listdir(cls.basedir):
             # Check if the file contains 'req' or 'dep' and has a .txt extension
             if (('req' in filename or 'dep' in filename) and filename.endswith('.txt')):
-                filepath = os.path.join(cls.basedir, filename)
+                filepath = f"{cls.basedir}/{filename}"
                 # Read the contents of the file and store in the dictionary
                 deps = set()
                 for line in get_lines(filepath):

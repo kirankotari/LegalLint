@@ -1,5 +1,5 @@
 import os
-from legallint.utils import read_toml, read_yaml, get_pwd
+from legallint.utils import read_yaml, exit
 
 class Settings:
     basedir = os.getcwd()
@@ -7,36 +7,29 @@ class Settings:
     trigger_error_licenses = set()
     skip_libraries = set()
 
-    config_files = ['pyproject.toml', 'legallint.yaml']
-    # TODO: need to move pyprject.toml to python plugin
+    config_file = 'legallint.yaml'
 
     @classmethod
-    def load(cls):
-        for file in cls.config_files:
-            pth = f"{cls.basedir}/{file}"
-            # print(pth)
-            if 'toml' in file:
-                config = read_toml(pth)
-                if 'licenses' not in config:
-                    continue
-                cls.allowed_licenses = set(config['licenses'].get('allowed', []))
-                cls.trigger_error_licenses = set(config['licenses'].get('trigger_error', []))
-                cls.skip_libraries = set(config['licenses'].get('skip_libraries', []) or [])
-            if 'yaml' in file:
-                config = read_yaml(pth)
-                # print(config)
-                cls.allowed_licenses = set(config.get('allowed_licenses', []))
-                cls.trigger_error_licenses = set(config.get('trigger_error_licenses', []))
-                cls.skip_libraries = set(config.get('skip_libraries', []) or [])
-        if len(cls.allowed_licenses) == 0 and len(cls.trigger_error_licenses) == 0:
-            print("no legallint setting found.")
+    def load(cls, settings):
+        if (not settings) and (not os.path.isfile(f"{cls.basedir}/{cls.config_file}")):
+            print("no legallint.yaml setting found.")
+            exit()
+
+        if not settings:
+            config = read_yaml(f"{cls.basedir}/{cls.config_file}")
+            cls.allowed_licenses = set(config.get('allowed_licenses', []))
+            cls.trigger_error_licenses = set(config.get('trigger_error_licenses', []))
+            cls.skip_libraries = set(config.get('skip_libraries', []) or [])
+
+        if settings:
+            cls.allowed_licenses, cls.trigger_error_licenses, cls.skip_libraries = settings
 
         cls.allowed_licenses |= {key.split('-')[0] for key in cls.allowed_licenses}
         cls.trigger_error_licenses |= {key.split('-')[0] for key in cls.trigger_error_licenses}
 
 class LegalLint:
-    def __init__(self, deps):
-        Settings.load()
+    def __init__(self, deps, settings=None):
+        Settings.load(settings)
         self.allowed = set()
         self.errors = set()
         self.warnings = set()

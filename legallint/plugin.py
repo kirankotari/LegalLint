@@ -17,6 +17,11 @@ class Plugin(abc.ABC):
         """Processes the input data."""
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def load_settings(self):
+        """Load LegalLint settings"""
+        raise NotImplementedError
+
 class PluginManager:
     # TODO: need to add more plugins
     def __init__(self, plugindirs=None):
