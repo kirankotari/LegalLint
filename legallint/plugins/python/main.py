@@ -14,28 +14,22 @@ class PythonPlugin(Plugin):
         return "python"
 
     def run(self):
-        Toml.get_dependencies()
-        deps = Toml.to_set()
-
-        if not deps:
-            Requirements.get_dependencies()
-            deps = Requirements.to_set()
-
-        # print(f"python deps found {deps}")
+        deps = self._extracted_from(Toml) or self._extracted_from(Requirements)
+        # print(f"python deps found {dep}")
         Expand.map_dependencies_by_package()
         deps = Expand.get_dependencies(deps)
         deps = deps - Expand.not_installed
         # print(f"python deps expanded {deps}")
         pylic = PythonLicense()
-        for dep in deps:
-            lic = pylic.get_package_license(dep)
-            # lic = pylic.set_to_string(lic)
-            print(f"{dep}: {lic}")
-            # break
-        return
+        return {dep: pylic.get_package_license(dep) for dep in deps}
+
+    def _extracted_from(self, cls):
+        cls.get_dependencies()
+        return cls.to_set()
 
 
 class PythonLicense(License):
+    unknown = {'UNKNOWN'}
     def __init__(self):
         super().__init__()
         self.licenses = super().get(is_print=False)
@@ -73,9 +67,9 @@ class PythonLicense(License):
 
         except StopIteration:
             print(f"Package '{pkg_name}' not found.")
-            return 'UNKNOWN'
+            return self.unknown
 
-        return 'UNKNOWN'
+        return self.unknown
 
     # Helper function to retrieve license from metadata fields
     def _get_license_from_metadata(self, dist, field_name):
@@ -204,14 +198,28 @@ class Requirements:
     dependencies = {}
 
     @classmethod
+    def clean_line(cls, line):
+        # Check if the line starts with a comment (ignoring leading whitespace)
+        if re.match(r'^\s*#', line):
+            return None
+        if line := line.split('#')[0].strip():
+            # Remove any conditions (e.g., version specifiers like >=, <=, ==)
+            return line.split('>=')[0].split('<=')[0].split('==')[0].strip()
+        return None
+
+    @classmethod
     def get_dependencies(cls):
-        # requirements dependencies
+        # List all files in the current working directory
         for filename in os.listdir(cls.basedir):
+            # Check if the file contains 'req' or 'dep' and has a .txt extension
             if (('req' in filename or 'dep' in filename) and filename.endswith('.txt')):
-                filepath = f"{cls.basedir}/{filename}"
-                with open(filepath, 'r') as f:
-                    dependencies = set(f.read().splitlines())
-                    cls.dependencies[filename] = dependencies
+                filepath = os.path.join(cls.basedir, filename)
+                # Read the contents of the file and store in the dictionary
+                deps = {}
+                for line in get_lines(filepath):
+                    if cleaned := cls.clean_line(line):
+                        deps.add(cleaned)
+                cls.dependencies[filename] = deps
         return cls.dependencies
 
     @classmethod
