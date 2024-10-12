@@ -38,6 +38,8 @@ skip_libraries:
 
 ```
 ### Example Configuration for python (pyproject.toml)
+
+To configure license settings for LegalLint in the pyproject.toml file, you can follow this structure:
 ```toml
 [licenses]
 allowed = ["MIT", "Apache-2.0", "BSD-3-Clause"]
