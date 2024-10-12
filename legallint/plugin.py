@@ -32,37 +32,36 @@ class PluginManager:
         """Loads all plugins from the plugin directory."""
         self.plugindirs.insert(0, f"{self.basedir}/plugins")
 
-        # TODO: importing path is static, need to update later
-        # pth = os.getenv('LEGALLINT_PLUGINPATH')
-        # if pth is not None:
-        #     self.plugindirs.extend(pth.split(os.pathsep))
+        pth = os.getenv('LEGALLINT_PLUGINPATH')
+        if pth is not None:
+            self.plugindirs.extend(pth.split(os.pathsep))
 
         syspath = sys.path
         for eplugin in self.plugindirs:
-            for lang in os.listdir(eplugin):
-                if not os.path.isdir(f"{eplugin}/{lang}") or (plugin and plugin != lang):
+            sys.path = [f"{eplugin}"] + syspath
+            fnames = os.listdir(eplugin)
+
+            for fname in fnames:
+                if (fname.startswith(".#") or fname.startswith("__")):
                     continue
-
-                sys.path = [f"{eplugin}", f"{eplugin}/{lang}"] + syspath
-                fnames = os.listdir(f"{eplugin}/{lang}")
-
-                for fname in fnames:
-                    if (fname.startswith(".#") or fname.startswith("__")):
-                        continue
-                    elif fname.endswith(".py"):
-                        modname = fname[:-3]
-                        self._load_plugin(lang, modname)
-                    elif fname.endswith(".pyc"):
-                        modname = fname[:-4]
-                        self._load_plugin(lang, modname)
+                if not fname.startswith("for_"):
+                    continue
+                elif fname.endswith(".py"):
+                    modname = fname[:-3]
+                    self._load_plugin(modname[4:], modname)
+                elif fname.endswith(".pyc"):
+                    modname = fname[:-4]
+                    self._load_plugin(modname[4:], modname)
         sys.path = syspath
         return self.plugins
 
 
     def _load_plugin(self, lang, module):
         """Dynamically loads a plugin modules"""
-        plugin = 'legallint.plugins'
-        module = importlib.import_module(f"{plugin}.{lang}.{module}")
+        # plugin = 'legallint.plugins'
+        # module = importlib.import_module(f"{plugin}.{lang}.{module}")
+        print(module)
+        module = __import__(module)
         for attr in dir(module):
             plugin_class = getattr(module, attr)
             if isinstance(plugin_class, type) and check_subclass(plugin_class, Plugin):

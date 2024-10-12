@@ -56,7 +56,6 @@ class PythonLicense(License):
         return next(iter(value_set)) if len(value_set) == 1 else value_set
 
     def get_package_license(self, pkg_name):
-        # TODO: use static data to optimize
         try:
             dist = next(d for d in distributions() if d.metadata['Name'].lower() == pkg_name.lower())
 

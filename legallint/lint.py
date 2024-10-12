@@ -51,6 +51,11 @@ class LegalLint:
                     self.allowed.add(dep)
             if dep not in self.errors and dep not in self.allowed:
                 self.warnings.add(dep)
+
+        if not len(Settings.trigger_error_licenses):
+            self.errors |= self.warnings
+            self.warnings = set()
+
         for dep, lic_set in deps.items():
             if dep in self.allowed:
                 print(f"{marks[0]:<5} {dep:<20} {'; '.join(lic_set)}")
