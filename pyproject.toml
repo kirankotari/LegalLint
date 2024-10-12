@@ -5,6 +5,7 @@ description = "LegalLint: A Multi-Language License Compliance Linter"
 authors = ["Kiran Kumar Kotari <kirankotari@live.com>"]
 readme = "README.md"
 license = "Apache-2.0"
+homepage = https://github.com/kirankotari/LegalLint
 
 [tool.poetry.dependencies]
 python = "^3.8"
