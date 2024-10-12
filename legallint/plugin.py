@@ -58,9 +58,6 @@ class PluginManager:
 
     def _load_plugin(self, lang, module):
         """Dynamically loads a plugin modules"""
-        # plugin = 'legallint.plugins'
-        # module = importlib.import_module(f"{plugin}.{lang}.{module}")
-        print(module)
         module = __import__(module)
         for attr in dir(module):
             plugin_class = getattr(module, attr)
