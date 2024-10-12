@@ -1,7 +1,6 @@
 """
 LegalLint python locates 3rd party libraries used and returns name and metadata
 """
-
 import os
 import re
 from importlib.metadata import distributions
@@ -31,7 +30,7 @@ class PythonPlugin(Plugin):
         return
 
 class Requirements: #  create a class requirements.txt , dev-req.txt , req-dev.txt root direc scan find txt files / req / read that file store the data[] in a var list 
-    basedir = os.getcwd()  # Current working directory
+    basedir = get_pwd()  # Current working directory
     files = ['requirements.txt', 'dev-requirements.txt']  # List of potential requirements files ((dep, req,))
     dependencies = {}
 
@@ -41,47 +40,76 @@ class Requirements: #  create a class requirements.txt , dev-req.txt , req-dev.t
         Locate the requirements file (requirements.txt or dev-requirements.txt) in the base directory.
         Returns the file path if found, otherwise returns None.
         """
-        for filename in cls.files:
-            fpath = os.path.join(cls.basedir, filename)
-            if os.path.isfile(fpath):
-                return fpath
-        return None
+        requirements_files = []
+        patterns = [
+            r'requirements.*\.txt$',  # Matches 'requirements.txt', 'requirements-dev.txt', etc.
+            r'dev.*\.txt$',           # Matches 'dev-requirements.txt', 'dev.txt', etc.
+            r'packages.*\.txt$',      # Matches 'packages.txt', etc.
+            r'dep.*\.txt$',           # Matches 'dep.txt', 'dependencies.txt', etc.
+            r'.*\.txt$'               # Matches any .txt file (last resort)
+        ]
+
+        for filename in os.listdir(cls.basedir):
+            for pattern in patterns:
+                if re.match(pattern, filename, re.IGNORECASE) and os.path.isfile(os.path.join(cls.basedir, filename)):
+                    requirements_files.append(os.path.join(cls.basedir, filename))
+                    break  # Stop checking other patterns once a match is found
+        
+        return requirements_files
+        # for filename in cls.files:
+        #     fpath = f"{cls.basedir}/{filename}"
+        #     if os.path.isfile(fpath):
+        #         return fpath
+        # return None
     # we should get list files 
 
     @classmethod
-    def get_dependencies(cls, fpath=None):
+    def get_dependencies(cls):
         """
         Read the requirements file and extract dependencies.
         Optionally take a specific file path.
         """
-        if fpath is None:
-            fpath = cls.get_requirements_file()
+        requirements_files = cls.get_requirements_file()
         
-        if fpath is None:
-            print("No requirements file found in the base directory.")
+        if not requirements_files:
+            print("No requirements files found in the base directory.")
             return cls.dependencies
+        
+        cls.dependencies={}
 
-        try:
-            with open(fpath, 'r') as file:
-                for line in file:
-                    line = line.strip()
-                    if line and not line.startswith('#'):  # Ignore empty lines and comments
-                        # Handle version specifications (e.g., package==version or package>=version)
-                        package = line.split(' ')[0].split('==')[0].split('>=')[0]
-                        cls.dependencies[package] = line  # Store full line for further use
-        except Exception as e:
-            print(f"Error reading requirements file: {e}")
+        for fpath in requirements_files:
+            # Use the filename to create a key for dependencies
+            # key = os.path.basename(fpath).replace('.txt', '').replace('requirements', 'reqs')
+            # cls.dependencies[key] = []  # Initialize a list for this key
+            file_key = os.path.basename(fpath)  # Use the file name as a key
+            cls.dependencies[file_key] = set()  # Initialize the list for this requirements file
+
+            try:
+                with open(fpath, 'r') as file:
+                    for line in file:
+                        line = line.strip()
+                        if line and not line.startswith('#'):  # Ignore empty lines and comments
+                            # Handle version specifications (e.g., package==version or package>=version)
+                            package = line.split(' ')[0].split('==')[0].split('>=')[0]
+                            cls.dependencies[file_key].add(package) # add the package to the corrrespondind file list
+            except Exception as e:
+                print(f"Error reading requirements file: {e}")
 
         return cls.dependencies
     # we need only keys and it supposed to be a set not dict
 
     @classmethod
-    def to_set(cls, deps=None):
+    # def to_set(cls, deps=None):
+    #     """
+    #     Convert the collected dependencies into a set for uniqueness.
+    #     """
+    #     # {‘reqs’: [‘pytest’, ‘pandas’], ‘dev-requirements’: [‘mkdocs’]}
+    #     return set(cls.dependencies.keys()) if deps is None else set(deps)
+    def to_set(cls):
         """
         Convert the collected dependencies into a set for uniqueness.
         """
-        # {‘reqs’: [‘pytest’, ‘pandas’], ‘dev-requirements’: [‘mkdocs’]}
-        return set(cls.dependencies.keys()) if deps is None else set(deps)
+        return {k: set(v) for k, v in cls.dependencies.items() if v}
 
 class Expand:
     dep_map = {}
@@ -98,7 +126,7 @@ class Expand:
 
         for pkg_name in pkgs_set:
             if pkg_name in cls.visited:
-                continue
+                continue                    
             cls.visited.add(pkg_name)
 
             if pkg_name not in cls.dep_map:
@@ -175,10 +203,17 @@ if __name__ == "__main__":
 #     deps = Expand.get_dependencies(deps)
 #     print(deps)
 #    # Requirement testing
-    fpath=  Requirements.get_requirements_file()
-    if fpath:
-        print(fpath)# it prints 
-        deps= Requirements.get_dependencies(fpath=fpath)
-        print(deps)
+    # fpath=  Requirements.get_requirements_file()
+        # if fpath:
+        #     print(fpath)# it prints 
+        #     deps= Requirements.get_dependencies(fpath=fpath)
+        #     print(deps)
+
+    deps = Requirements.get_dependencies()  # This will automatically find and read all matching requirements files
+    if deps:
+        print("\nAll Dependencies found:")
+        print(deps)  # Print the structured dependencies dictionary
+    else:
+        print("No dependencies found.")
 
 
