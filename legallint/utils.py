@@ -55,5 +55,5 @@ def read_yaml(fpath):
     with open(fpath, 'r') as f:
         return yaml.safe_load(f)
 
-def exit():
-    sys.exit()
+def exit(code=0):
+    sys.exit(code)

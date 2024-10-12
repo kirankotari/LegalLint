@@ -89,6 +89,7 @@ class License:
     resources = f"{basedir}/license/resources.txt"
     license_file = f"{basedir}/license/{JSON.fname}"
     licenses = {}
+    spdx_set = set()
 
     @classmethod
     def fetch(cls, resources=None):
@@ -141,8 +142,9 @@ class License:
             main()
 
         cls.licenses = read_json(license_file)
+        cls._create_spdx_set()
         if not is_print:
-            return cls.licenses
+            return cls.spdx_set
 
         # ANSI escape codes for colors
         COLORS = [
@@ -165,6 +167,13 @@ class License:
         for k, v in cls.licenses.items():
             print(pretty(k, v, COLORS[color_index]))
             color_index = (color_index + 1) % len(COLORS)
+
+    @classmethod
+    def _create_spdx_set(cls):
+        full_set = lambda s: {'-'.join(s.split('-')[:i+1]) for i in range(len(s.split('-')))}
+
+        for spdx in cls.licenses:
+            cls.spdx_set |= full_set(spdx)
 
 
 def main():

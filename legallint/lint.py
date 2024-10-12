@@ -1,5 +1,6 @@
 import os
 from legallint.utils import read_yaml, exit
+from legallint.exceptions import LegalLintError, LegalLintWarning, LegalLintInfo
 
 class Settings:
     basedir = os.getcwd()
@@ -57,5 +58,14 @@ class LegalLint:
                 print(f"{marks[1]:<5} {dep:<20} {'; '.join(lic_set)}")
             if dep in self.warnings:
                 print(f"{marks[2]:<5} {dep:<20} {'; '.join(lic_set)}")
+
+        if len(self.errors):
+            print(LegalLintError())
+            exit(-1)
+        if len(self.warnings):
+            print(LegalLintWarning())
+            exit(-1)
+        print(LegalLintInfo())
+
 
 

@@ -21,7 +21,23 @@ pip install legallint
 $ legallint -l python
 ```
 
-### Example Configuration (pyproject.toml)
+### Example Configuration (legallint.yaml)
+```yaml
+allowed_licenses:
+  - MIT
+  - Apache-2.0
+  - BSD-3-Clause
+
+trigger_error_licenses:
+  - GPL-3.0
+  - AGPL-3.0
+  - Proprietary
+  - Unknown
+
+skip_libraries:
+
+```
+### Example Configuration for python (pyproject.toml)
 ```toml
 [licenses]
 allowed = ["MIT", "Apache-2.0", "BSD-3-Clause"]
@@ -31,21 +47,29 @@ trigger_error = ["GPL-3.0", "AGPL-3.0", "Proprietary", "Unknown"]
 skip_libraries = ["example-lib1", "example-lib2"]
 ```
 
+### Example legallint result
 ```bash
-$ legallint -l python
+% legallint -l python
 ---------------
    PYTHON
 ---------------
+✔     iniconfig            MIT
+✔     requests             Apache; Apache-2.0
+✔     tomli                MIT
+✔     charset-normalizer   MIT
+✔     idna                 BSD
+✔     exceptiongroup       MIT
+✔     pytest               MIT
+✔     pyyaml               MIT
+✔     pip                  MIT
+‼     certifi              MPL; MPL-2.0
 ✔     toml                 MIT
 ✔     pluggy               MIT
-✔     iniconfig            MIT
-✔     packaging            Apache; BSD
-✔     idna                 BSD
-✔     requests             Apache-2.0
+✔     packaging            BSD; Apache
+✔     setuptools           MIT
 ✔     urllib3              MIT
-‼     certifi              MPL-2.0
-✔     pytest               MIT
-✔     charset-normalizer   MIT
+LegalLint: License compliance warning.
+% 
 ```
 
 ### legallint commands

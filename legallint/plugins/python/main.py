@@ -50,9 +50,7 @@ class PythonLicense(License):
     unknown = {'Unknown'}
     def __init__(self):
         super().__init__()
-        self.licenses = super().get(is_print=False)
-        self.license_set = {key.split('-')[0] for key in self.licenses if len(key.split('-')[0]) > 2}
-        # print(self.license_set)
+        self.spdx_set = super().get(is_print=False)
 
     def set_to_string(self, value_set):
         return next(iter(value_set)) if len(value_set) == 1 else value_set
@@ -121,8 +119,7 @@ class PythonLicense(License):
     
     def _validate_license(self, license_content):
         if license := {
-            lic for lic in self.licenses if lic in license_content} or {
-            lic for lic in self.license_set if lic in license_content}:
+            lic for lic in self.spdx_set if lic in license_content}:
             return license
         return set()
     
