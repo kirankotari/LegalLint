@@ -15,9 +15,9 @@ def main():
 
     parser.add_argument(
         '-l', '--lang',
-        choices=['python', 'node'], # ['python', 'java', 'node'],
+        choices=['python', 'npm'], # ['python', 'java', 'npm'],
         nargs='+',  # one or more options
-        help='Select one or more languages from: python' # python, java, node
+        help='Select one or more languages from: python' # python, java, npm
     )
     parser.add_argument('-u', '--update', action='store_true', help="Enable update mode")
     parser.add_argument('--license', action='store_true', help="Enable license mode")

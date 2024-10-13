@@ -77,7 +77,7 @@ LegalLint: License compliance warning.
 ### legallint commands
 ```bash
 $ legallint -h
-usage: legallint [-h] [--verbose] [-v] [-l {python,node} [{python,node} ...]] [-u] [--license]
+usage: legallint [-h] [--verbose] [-v] [-l {python,npm} [{python,npm} ...]] [-u] [--license]
 
 LegalLint is a cross-platform tool designed to ensure license compliance across multiple programming languages by analyzing dependencies and enforcing predefined license policies. LegalLint helps maintain legal standards by scanning the project’s dependencies and ensuring that only approved licenses (e.g., MIT, Apache 2.0) are used.
 
@@ -85,7 +85,7 @@ options:
   -h, --help            show this help message and exit
   --verbose             Enable verbose mode
   -v, --version         show program's version number and exit
-  -l {python,node} [{python,node} ...], --lang {python,node} [{python,node} ...]
+  -l {python,npm} [{python,npm} ...], --lang {python,npm} [{python,npm} ...]
                         Select one or more languages from: python
   -u, --update          Enable update mode
   --license             Enable license mode
