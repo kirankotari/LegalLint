@@ -39,11 +39,14 @@ def main():
         plugins = manager.load_plugins(elang)
 
     if plugins:
+        # print(f"plugins: {plugins}")
         for lang in plugins:
             deps = manager.run_plugin(lang)
-            print("-" * 15)
-            print(f"   {plugins[lang].get_name().upper()}")
-            print("-" * 15)
+            # print(f"deps: {deps}, {lang}")
+            if deps:
+                print("-" * 15)
+                print(f"   {plugins[lang].get_name().upper()}")
+                print("-" * 15)
             settings = plugins[lang].load_settings()
             LegalLint(deps, settings)
     else:

@@ -6,7 +6,7 @@ class NpmPlugin(Plugin):
 
     def run(self):
         deps = None
-        print(f"npm deps found {deps}")
+        # print(f"npm deps found {deps}")
         return
 
     def load_settings(self):

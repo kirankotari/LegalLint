@@ -1,5 +1,5 @@
 __name__ = "LegalLint"
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __summary__ = "LegalLint: A Multi-Language License Compliance Linter"
 
 __description__ = """
