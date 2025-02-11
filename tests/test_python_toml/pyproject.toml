@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "legallint"
-version = "1.1.2"
+version = "1.1.3"
 description = "LegalLint: A Multi-Language License Compliance Linter"
 authors = ["Kiran Kumar Kotari <kirankotari@live.com>"]
 readme = "README.md"
