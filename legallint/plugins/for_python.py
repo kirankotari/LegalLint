@@ -1,6 +1,7 @@
 """
 LegalLint python locates 3rd party libraries used and returns name and metadata
 """
+import os
 import re
 from importlib.metadata import distributions
 
@@ -262,8 +263,6 @@ class Toml:
     @classmethod
     def to_set(cls, deps:dict=None):
         return flatten_set(cls.dependencies) if not deps and cls.dependencies else deps
-
-import os
 
 class Requirements:
     basedir = get_pwd()
