@@ -1,35 +1,37 @@
-[tool.poetry]
+[project]
 name = "legallint"
-version = "1.1.1"
-description = "LegalLint: A Multi-Language License Compliance Linter"
-authors = ["Kiran Kumar Kotari <kirankotari@live.com>"]
+version = "1.1.2"
+description = "LegalLint: A multi-language license compliance tool"
+authors = [
+    {name = "Kiran Kumar Kotari",email = "kirankotari@live.com"}
+]
+license = {text = "Apache-2.0"}
 readme = "README.md"
-license = "Apache-2.0"
-homepage = "https://github.com/kirankotari/LegalLint"
+requires-python = ">=3.11"
+dependencies = [
+    "requests (>=2.32.3,<3.0.0)",
+    "toml (>=0.10.2,<0.11.0)",
+    "pyyaml (>=6.0.2,<7.0.0)",
+]
 
+[project.urls]
+homepage = "https://github.com/kirankotari/legallint"
+repository = "https://github.com/kirankotari/legallint"
+documentation = "https://github.com/kirankotari/LegalLint/blob/main/README.md"
+"Bug Tracker" = "https://github.com/kirankotari/LegalLint/issues"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-requests = "^2.32.3"
-toml = "^0.10.2"
-pyyaml = "^6.0.2"
+[project.scripts]
+yang-wizard = "yang_wizard.yang_wizard:run"
 
-[tool.poetry.scripts]
-legallint = 'legallint.scripts.legallint_tool:main'
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
-pytest = {extras = ["mock"], version = "^8.3.3"}
+pytest = "^8.3.4"
 pylint = "^3.3.4"
 black = "^25.1.0"
 
-
-
-[tool.poetry.group.doc.dependencies]
-mkdoc = "^0.1"
-
-[build-system]
-requires = ["poetry_core>=1.0"]
-build-backend = "poetry.core.masonry.api"
 
 [licenses]
 allowed = ["MIT", "Apache-2.0", "BSD-3-Clause"]
