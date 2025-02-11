@@ -230,6 +230,7 @@ class Toml:
     def read(cls, fpath=None):
         if not fpath:
             fpath = f"{cls.basedir}/{cls.file}"
+        # print(fpath)
         cls.config = read_toml(fpath)
         return cls.config
 

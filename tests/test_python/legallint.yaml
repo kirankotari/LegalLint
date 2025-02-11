@@ -10,3 +10,4 @@ trigger_error_licenses:
   - Unknown
 
 skip_libraries:
+  - pylint

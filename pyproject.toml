@@ -9,7 +9,7 @@ homepage = "https://github.com/kirankotari/LegalLint"
 
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.11"
 requests = "^2.32.3"
 toml = "^0.10.2"
 pyyaml = "^6.0.2"
@@ -19,6 +19,8 @@ legallint = 'legallint.scripts.legallint_tool:main'
 
 [tool.poetry.group.dev.dependencies]
 pytest = {extras = ["mock"], version = "^8.3.3"}
+pylint = "^3.3.4"
+black = "^25.1.0"
 
 
 
